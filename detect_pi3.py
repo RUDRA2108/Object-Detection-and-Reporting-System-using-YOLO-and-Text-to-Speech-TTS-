@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import os
 import time
+from gtts import gTTS
 import subprocess
 
 # Load YOLOv3 model
@@ -37,7 +38,7 @@ def detect_objects(image_path):
 def generate_audio(text):
     tts = gTTS(text=text, lang='en')
     tts.save("output.mp3")
-    subprocess.call(["mpg321", "output.mp3"])
+    subprocess.call(["mpg321", "-q", "-a", "bluetooth", "output.mp3"])
 
 # Detect and report
 def detect_and_report(detected_objects):

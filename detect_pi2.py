@@ -27,9 +27,9 @@ def detect_objects(image_path):
     return detected_objects
 
 def generate_audio(text):
-    tts = gTTS(text=text, lang='en')
-    tts.save("output.mp3")
-    os.system("omxplayer output.mp3")
+    tts = gTTS(text=text, lang='en', tld='co.uk', slow=False, xargs=['-ss', '0', '-ac', '1', '-ar', '22050'])
+    tts.save("output.wav")
+    os.system("aplay output.wav")
     
 def detect_and_report(detected_objects):
     print("Detected objects:", detected_objects)

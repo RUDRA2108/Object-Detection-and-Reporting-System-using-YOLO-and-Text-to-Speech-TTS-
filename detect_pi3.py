@@ -2,8 +2,7 @@ import cv2
 import numpy as np
 import os
 import time
-import picamera
-from gtts import gTTS
+import subprocess
 
 # Load YOLOv3 model
 net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
@@ -36,10 +35,9 @@ def detect_objects(image_path):
 
 # Generate audio from text
 def generate_audio(text):
-    tts = gTTS(text=text, lang='en', tld='co.uk', slow=False, sample_rate=16000)
+    tts = gTTS(text=text, lang='en')
     tts.save("output.mp3")
-    os.system("ffmpeg -i output.mp3 output.wav")
-    os.system("aplay -r 16000 output.wav")
+    subprocess.call(["mpg321", "output.mp3"])
 
 # Detect and report
 def detect_and_report(detected_objects):
@@ -73,25 +71,20 @@ def detect_and_report(detected_objects):
         # Generate audio
         generate_audio("A {} is detected in the {} side.".format(class_name, location_text))
 
-# Capture photo and detect objects
 def capture_detect_and_report():
-    with picamera.PiCamera() as camera:
-        camera.resolution = (320, 240)
-        camera.start_preview()
-        time.sleep(2)
-        camera.capture('captured_photo.jpg')
-        camera.stop_preview()
+    # Capture photo
+    subprocess.call(["libcamera-still", "-o", "captured_photo.jpg"])
 
-        # Detect objects
-        detected_objects = detect_objects("captured_photo.jpg")
+    # Detect objects
+    detected_objects = detect_objects("captured_photo.jpg")
 
-        # Report detected objects
-        detect_and_report(detected_objects)
+    # Report detected objects
+    detect_and_report(detected_objects)
 
-        # Delete captured photo
-        os.remove("captured_photo.jpg")
+    # Delete captured photo
+    os.remove("captured_photo.jpg")
 
 # Main loop
 while True:
     capture_detect_and_report()
-    time.sleep(10)
+    time.sleep(10)  #Wait for 10 seconds before capturing the next photos
